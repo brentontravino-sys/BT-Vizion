@@ -1,0 +1,6 @@
+{
+  "name": "BT Vizion",
+  "description": "Next-generation digital agency specializing in high-performance web development, AI automation agents, and intelligent marketing ecosystems.",
+  "requestFramePermissions": ["microphone"],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

@@ -1,0 +1,45 @@
+# Dependencies
+node_modules/
+
+# Build outputs
+build/
+dist/
+*.cjs
+
+# Environment files
+.env*
+!.env.example
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# System files
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+npm-debug.log*
+
+# OS
+*.pem
+
+# Test coverage
+coverage/
+
+# Temporary files
+tmp/
+temp/
+
+# Bun
+bun.lockb
+
+# Vercel
+.vercel
+
+# Local overrides
+.env.local
+.env*.local
