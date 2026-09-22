@@ -14,6 +14,7 @@ import {
   CheckCircle2,
   Trash2,
 } from 'lucide-react';
+import { safeFetchJson } from '../utils/apiClient';
 
 const REASSURING_MESSAGES = [
   'Initializing Veo neural motion models...',
@@ -94,7 +95,11 @@ export default function AiVideoStudio() {
 
     try {
       // Step 1: Start video generation
-      const startRes = await fetch('/api/generate-video', {
+      const startResult = await safeFetchJson<{
+        operationName?: string;
+        status?: string;
+        error?: string;
+      }>('/api/generate-video', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -104,12 +109,16 @@ export default function AiVideoStudio() {
         }),
       });
 
-      const startData = await startRes.json();
-      if (!startRes.ok || startData.error || !startData.operationName) {
-        throw new Error(startData.error || 'Failed to initialize Veo video generation.');
+      if (!startResult.ok || startResult.error || !startResult.data?.operationName) {
+        if (startResult.isQuota) {
+          throw new Error(
+            'Veo Quota Exceeded (429): Google Veo video generation requires active paid quota. Please configure a paid API key in Settings > Secrets.'
+          );
+        }
+        throw new Error(startResult.error || 'Failed to initialize Veo video generation.');
       }
 
-      const operationName = startData.operationName;
+      const operationName = startResult.data.operationName;
 
       // Step 2: Poll operation status every 5 seconds until done
       let isDone = false;
@@ -120,18 +129,20 @@ export default function AiVideoStudio() {
         await new Promise((resolve) => setTimeout(resolve, 5000));
         attempts++;
 
-        const pollRes = await fetch('/api/video-status', {
+        const pollResult = await safeFetchJson<{
+          done?: boolean;
+          error?: any;
+        }>('/api/video-status', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ operationName }),
         });
 
-        const pollData = await pollRes.json();
-        if (pollData.error) {
-          throw new Error(pollData.error.message || 'Error occurred during Veo rendering.');
+        if (pollResult.data?.error) {
+          throw new Error(pollResult.data.error.message || 'Error occurred during Veo rendering.');
         }
 
-        if (pollData.done) {
+        if (pollResult.data?.done) {
           isDone = true;
           break;
         }
@@ -149,7 +160,14 @@ export default function AiVideoStudio() {
       });
 
       if (!downloadRes.ok) {
-        throw new Error('Failed to retrieve rendered video stream.');
+        let errMessage = 'Failed to retrieve rendered video stream.';
+        try {
+          const errJson = await downloadRes.json();
+          if (errJson.error) errMessage = errJson.error;
+        } catch {
+          // ignore
+        }
+        throw new Error(errMessage);
       }
 
       const blob = await downloadRes.blob();
@@ -160,11 +178,12 @@ export default function AiVideoStudio() {
       const isQuota =
         err.message?.includes('quota') ||
         err.message?.includes('paid') ||
+        err.message?.includes('429') ||
         err.message?.includes('RESOURCE_EXHAUSTED');
 
       setErrorMessage(
         isQuota
-          ? 'Veo video generation requires Google Cloud Veo preview access and active API quota. Ensure your project has Veo model access enabled in the AI Studio settings.'
+          ? 'Veo video generation requires active API quota (429). You can select an authorized billing API key in Settings > Secrets.'
           : err.message || 'Failed to animate video. Please try again.'
       );
     } finally {

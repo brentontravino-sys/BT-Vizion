@@ -7,7 +7,6 @@ import {
   ScrollWordColorReveal,
   SpotlightCard,
   ScrollingTicker,
-  ScrollParallaxWatermark,
   ScrollHeaderGradientFill,
 } from './ScrollReveal';
 
@@ -18,9 +17,6 @@ interface ProcessProps {
 export default function Process({ onOpenContact }: ProcessProps) {
   return (
     <section id="process" className="py-24 md:py-32 bg-transparent border-t border-white/10 relative overflow-hidden">
-      {/* Background Watermark */}
-      <ScrollParallaxWatermark text="METHODOLOGY" />
-
       <div className="max-w-7xl mx-auto px-6 md:px-8 relative z-10 pb-16 md:pb-20">
         {/* Header */}
         <ScrollReveal variant="fade-up" className="flex flex-col md:flex-row md:items-end justify-between gap-6 pb-14 border-b border-white/10">

@@ -1,12 +1,12 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 540 100" fill="none">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 580 100" fill="none">
   <style>
     .btv-text {
-      font-family: 'Plus Jakarta Sans', 'Nunito', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      font-family: 'Plus Jakarta Sans', 'Liberation Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
       font-weight: 900;
-      font-size: 88px;
-      letter-spacing: -0.04em;
+      font-size: 84px;
+      letter-spacing: -0.03em;
       fill: #ffffff;
     }
   </style>
-  <text x="0" y="78" class="btv-text">BTVIZION</text>
+  <text x="0" y="78" class="btv-text">BT VIZION</text>
 </svg>

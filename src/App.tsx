@@ -14,6 +14,7 @@ import Testimonials from './components/Testimonials';
 import Contact from './components/Contact';
 import Footer from './components/Footer';
 import BackToTop from './components/BackToTop';
+import FloatingChatbot from './components/FloatingChatbot';
 import CinematicDepthStage from './components/CinematicDepthStage';
 import ServicesPage from './pages/ServicesPage';
 import PortfolioPage from './pages/PortfolioPage';
@@ -200,8 +201,11 @@ export default function App() {
           onNavigate={navigateTo}
         />
 
-        {/* Floating Back to Top Navigation */}
+        {/* Floating Back to Top Navigation (Bottom-Right) */}
         <BackToTop />
+
+        {/* Floating BTV Chatbot (Bottom-Left, Entire Site) */}
+        <FloatingChatbot />
       </div>
     </LanguageProvider>
   );

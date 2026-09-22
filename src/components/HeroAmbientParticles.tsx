@@ -20,15 +20,15 @@ export default function HeroAmbientParticles() {
     };
     window.addEventListener('resize', handleResize);
 
-    // Ambient floating particles with multi-layer depth
-    const particleCount = width < 768 ? 45 : 85;
+    // Ambient floating particles with multi-layer depth (optimized & kept small)
+    const particleCount = width < 768 ? 18 : 36;
     const particles = Array.from({ length: particleCount }, () => ({
       x: Math.random() * width,
       y: Math.random() * height,
-      size: 0.6 + Math.random() * 1.8,
-      speedX: (Math.random() - 0.5) * 0.25,
-      speedY: -0.15 - Math.random() * 0.35, // slow upward ambient drift
-      opacity: 0.15 + Math.random() * 0.55,
+      size: 0.35 + Math.random() * 0.45, // small, crisp particles without bulky blobs
+      speedX: (Math.random() - 0.5) * 0.2,
+      speedY: -0.12 - Math.random() * 0.25, // gentle upward drift
+      opacity: 0.15 + Math.random() * 0.5,
       pulseSpeed: 0.01 + Math.random() * 0.02,
       pulsePhase: Math.random() * Math.PI * 2,
     }));

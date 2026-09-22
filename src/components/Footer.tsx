@@ -5,7 +5,6 @@ import { useLanguage } from '../context/LanguageContext';
 import {
   ScrollReveal,
   SpotlightCard,
-  ScrollParallaxWatermark,
   ScrollWordColorReveal,
   ScrollHeaderGradientFill,
 } from './ScrollReveal';
@@ -33,9 +32,6 @@ export default function Footer({ onOpenContact, onNavigate }: FooterProps) {
 
   return (
     <footer className="bg-transparent border-t border-white/10 pt-20 pb-12 relative overflow-hidden">
-      {/* Background Watermark */}
-      <ScrollParallaxWatermark text="BT VIZION" />
-
       <div className="max-w-7xl mx-auto px-6 md:px-8 relative z-10">
         {/* Giant Creovibe / Webfolio Callout Banner */}
         <ScrollReveal variant="fade-up">
@@ -83,7 +79,7 @@ export default function Footer({ onOpenContact, onNavigate }: FooterProps) {
           {/* Brand Column */}
           <div className="lg:col-span-4 space-y-4">
             <div className="flex items-center gap-3">
-              <BtvLogo className="h-6 sm:h-7 w-auto text-white" />
+              <BtvLogo className="h-[20.4px] sm:h-[23.8px] w-auto" />
               <span className="text-[10px] font-mono tracking-widest text-blue-400 uppercase pl-2 border-l border-white/20">
                 GLOBAL STUDIO
               </span>

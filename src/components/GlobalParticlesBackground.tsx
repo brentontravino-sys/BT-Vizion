@@ -53,9 +53,9 @@ export default function GlobalParticlesBackground() {
     };
     window.addEventListener('resize', handleResize);
 
-    // Generate balanced, ambient particles across multi-layer depth (Desktop: 75, Mobile: 36)
+    // Optimized, lightweight ambient particles across depth layers (Desktop: 38, Mobile: 18)
     const isMobile = width < 768;
-    const particleCount = isMobile ? 36 : 75;
+    const particleCount = isMobile ? 18 : 38;
     const particles: Particle[] = [];
 
     const colorPalette = [
@@ -66,15 +66,15 @@ export default function GlobalParticlesBackground() {
     ];
 
     for (let i = 0; i < particleCount; i++) {
-      const depth = 0.15 + Math.random() * 0.85; // 0.15 (far/tiny/slow) to 1.0 (near/bright/faster)
+      const depth = 0.2 + Math.random() * 0.8; // 0.2 (far/tiny/slow) to 1.0 (near/crisp)
       particles.push({
         x: Math.random() * width,
         y: Math.random() * height,
         depth,
-        size: 0.6 + depth * 1.5,
-        baseAlpha: 0.15 + depth * 0.45,
-        vx: (Math.random() - 0.5) * 0.22,
-        vy: -0.12 - depth * 0.28, // gentle upward drift similar to Hero particles
+        size: 0.35 + depth * 0.45, // Kept small & crisp (0.4px to 0.8px max), no bulky particles
+        baseAlpha: 0.15 + depth * 0.4,
+        vx: (Math.random() - 0.5) * 0.18,
+        vy: -0.10 - depth * 0.22, // gentle upward drift
         pulsePhase: Math.random() * Math.PI * 2,
         pulseSpeed: 0.012 + Math.random() * 0.02,
         color: colorPalette[Math.floor(Math.random() * colorPalette.length)],
@@ -104,13 +104,12 @@ export default function GlobalParticlesBackground() {
       // =========================================================================
       // 1. NEURAL CONSTELLATION THREADS (Subtle connection between nearby particles)
       // =========================================================================
-      const maxDistance = isMobile ? 55 : 75;
+      const maxDistance = isMobile ? 36 : 52;
       const maxDistSq = maxDistance * maxDistance;
 
       ctx.lineWidth = 0.5;
       for (let i = 0; i < particles.length; i++) {
         const p1 = particles[i];
-        // Connect only a subset of nearby pairs to maintain a sparse, crisp aesthetic
         for (let j = i + 1; j < particles.length; j++) {
           const p2 = particles[j];
           const dx = p1.x - p2.x;
@@ -119,7 +118,7 @@ export default function GlobalParticlesBackground() {
 
           if (distSq < maxDistSq) {
             const distance = Math.sqrt(distSq);
-            const lineAlpha = (1 - distance / maxDistance) * 0.06 * p1.depth;
+            const lineAlpha = (1 - distance / maxDistance) * 0.05 * p1.depth;
             ctx.strokeStyle = `rgba(147, 197, 253, ${lineAlpha})`;
             ctx.beginPath();
             ctx.moveTo(p1.x, p1.y);
@@ -143,8 +142,8 @@ export default function GlobalParticlesBackground() {
         const dx = p.x - mouseX;
         const dy = p.y - mouseY;
         const distToMouse = Math.sqrt(dx * dx + dy * dy);
-        if (distToMouse < 110 && distToMouse > 0) {
-          const force = (1 - distToMouse / 110) * 0.6 * p.depth;
+        if (distToMouse < 90 && distToMouse > 0) {
+          const force = (1 - distToMouse / 90) * 0.45 * p.depth;
           p.x += (dx / distToMouse) * force;
           p.y += (dy / distToMouse) * force;
         }
@@ -162,21 +161,13 @@ export default function GlobalParticlesBackground() {
 
         // Dynamic pulsing alpha
         const pulse = Math.sin(time * 2 + p.pulsePhase);
-        const currentAlpha = Math.max(0.04, p.baseAlpha * (0.75 + 0.25 * pulse));
+        const currentAlpha = Math.max(0.04, p.baseAlpha * (0.8 + 0.2 * pulse));
 
-        // Draw particle node
+        // Draw crisp micro particle (no large blurry halo)
         ctx.beginPath();
         ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
         ctx.fillStyle = `${p.color}${currentAlpha})`;
         ctx.fill();
-
-        // Delicate luminous halo on foreground particles
-        if (p.depth > 0.6) {
-          ctx.beginPath();
-          ctx.arc(p.x, p.y, p.size * 2.6, 0, Math.PI * 2);
-          ctx.fillStyle = `rgba(96, 165, 250, ${currentAlpha * 0.18})`;
-          ctx.fill();
-        }
       }
 
       // =========================================================================

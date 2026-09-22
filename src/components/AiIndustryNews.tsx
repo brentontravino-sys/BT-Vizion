@@ -20,6 +20,7 @@ import {
   Hash,
   Terminal,
 } from 'lucide-react';
+import { safeFetchJson } from '../utils/apiClient';
 
 export interface NewsArticle {
   id?: string;
@@ -71,7 +72,13 @@ export default function AiIndustryNews() {
       setErrorMsg(null);
 
       try {
-        const res = await fetch('/api/industry-news', {
+        const result = await safeFetchJson<{
+          data?: NewsReport;
+          groundingChunks?: GroundingChunk[];
+          webSearchQueries?: string[];
+          liveSearchActive?: boolean;
+          error?: string;
+        }>('/api/industry-news', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -82,18 +89,13 @@ export default function AiIndustryNews() {
           }),
         });
 
-        if (!res.ok) {
-          throw new Error(`HTTP error ${res.status}`);
-        }
-
-        const json = await res.json();
-        if (json.data) {
-          setReport(json.data);
-          setGroundingChunks(json.groundingChunks || []);
-          setWebSearchQueries(json.webSearchQueries || []);
-          setIsLiveSearchActive(Boolean(json.liveSearchActive));
+        if (result.data?.data) {
+          setReport(result.data.data);
+          setGroundingChunks(result.data.groundingChunks || []);
+          setWebSearchQueries(result.data.webSearchQueries || []);
+          setIsLiveSearchActive(Boolean(result.data.liveSearchActive));
         } else {
-          throw new Error('Malformed news data received.');
+          setErrorMsg('Live update service paused. Displaying verified cached intelligence.');
         }
       } catch (err: any) {
         console.error('Failed to fetch industry news:', err);

@@ -11,7 +11,6 @@ import {
   ScrollStaggerItem,
   ScrollWordColorReveal,
   SpotlightCard,
-  ScrollParallaxWatermark,
   ScrollHeaderGradientFill,
 } from './ScrollReveal';
 
@@ -39,9 +38,6 @@ export default function Portfolio({ onInquireProject, onNavigateToPortfolioPage 
 
   return (
     <section id="work" className="py-24 md:py-32 bg-transparent border-t border-white/10 relative overflow-hidden">
-      {/* Background Parallax Watermark */}
-      <ScrollParallaxWatermark text="CASE STUDIES" />
-
       <div className="max-w-7xl mx-auto px-6 md:px-8 relative z-10">
         {/* Header */}
         <ScrollReveal variant="fade-up" className="flex flex-col md:flex-row md:items-end justify-between gap-6 pb-14 border-b border-white/10">

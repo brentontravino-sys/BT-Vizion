@@ -192,7 +192,7 @@ export default function Navbar({ currentPage, onNavigate, onOpenContact }: Navba
           }}
           className="group flex items-center gap-3 text-white focus:outline-none py-1 cursor-pointer"
         >
-          <BtvLogo className="h-6 sm:h-7 w-auto text-white transition-opacity duration-200 group-hover:opacity-90" />
+          <BtvLogo className="h-[20.4px] sm:h-[23.8px] w-auto transition-opacity duration-200 group-hover:opacity-90" />
           <span className="hidden sm:inline-block text-[10px] font-mono tracking-widest text-blue-400 uppercase pl-3 border-l border-white/20">
             {language === 'en' ? 'DIGITAL & AI' : 'DIGITAL E IA'}
           </span>

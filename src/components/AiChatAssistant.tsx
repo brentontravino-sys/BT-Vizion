@@ -14,6 +14,7 @@ import {
   AlertCircle,
   Zap,
 } from 'lucide-react';
+import { safeFetchJson } from '../utils/apiClient';
 
 export interface ChatMessage {
   id: string;
@@ -138,7 +139,15 @@ export default function AiChatAssistant() {
           content: m.content,
         }));
 
-      const response = await fetch('/api/chat', {
+      const result = await safeFetchJson<{
+        reply?: string;
+        groundingChunks?: any[];
+        webSearchQueries?: string[];
+        modelUsed?: string;
+        isQuotaFallback?: boolean;
+        quotaNotice?: string;
+        error?: string;
+      }>('/api/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -149,20 +158,23 @@ export default function AiChatAssistant() {
         }),
       });
 
-      const data = await response.json();
-
-      if (!response.ok || data.error) {
-        throw new Error(data.error || 'Failed to receive response from Gemini server.');
+      if (!result.ok && !result.data?.reply) {
+        if (result.isQuota) {
+          throw new Error(
+            'Gemini API Quota Exceeded (429): The active API key has reached its rate limit. Please switch to Gemini 3.1 Flash Lite or try again in a moment.'
+          );
+        }
+        throw new Error(result.error || 'Failed to receive response from server.');
       }
 
       const botMessage: ChatMessage = {
         id: `bot-${Date.now()}`,
         role: 'model',
-        content: data.reply || 'No response returned from model.',
+        content: result.data.reply || 'No response returned from model.',
         timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-        groundingChunks: data.groundingChunks,
-        webSearchQueries: data.webSearchQueries,
-        modelUsed: data.modelUsed,
+        groundingChunks: result.data.groundingChunks,
+        webSearchQueries: result.data.webSearchQueries,
+        modelUsed: result.data.modelUsed,
       };
 
       setMessages((prev) => [...prev, botMessage]);

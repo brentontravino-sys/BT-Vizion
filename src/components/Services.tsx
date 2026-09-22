@@ -9,7 +9,6 @@ import {
   ScrollStagger,
   ScrollStaggerItem,
   ScrollWordColorReveal,
-  ScrollParallaxWatermark,
   SpotlightCard,
   ScrollHeaderGradientFill,
 } from './ScrollReveal';
@@ -37,9 +36,6 @@ export default function Services({ onSelectService, onNavigateToServicesPage }: 
 
   return (
     <section id="services" className="py-24 md:py-32 bg-transparent border-t border-white/10 relative overflow-hidden">
-      {/* Background Watermark */}
-      <ScrollParallaxWatermark text={language === 'en' ? 'SERVICES & SOLUTIONS' : 'SERVICIOS Y SOLUCIONES'} />
-
       <div className="max-w-7xl mx-auto px-6 md:px-8 relative z-10">
         {/* Section Header */}
         <ScrollReveal variant="fade-up" className="flex flex-col md:flex-row md:items-end justify-between gap-6 pb-14 border-b border-white/10">

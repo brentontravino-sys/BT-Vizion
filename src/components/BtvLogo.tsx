@@ -1,32 +1,25 @@
+import btvLogoPng from '../assets/images/btv-logo.png';
+
 interface BtvLogoProps {
   className?: string;
   height?: number | string;
+  alt?: string;
 }
 
-export default function BtvLogo({ className = 'h-7 w-auto', height }: BtvLogoProps) {
+export default function BtvLogo({
+  className = 'h-[20.4px] sm:h-[23.8px] w-auto',
+  height,
+  alt = 'BT VIZION',
+}: BtvLogoProps) {
   return (
-    <svg
-      viewBox="0 0 460 90"
-      fill="none"
-      xmlns="http://www.w3.org/2000/svg"
-      className={`inline-block select-none ${className}`}
+    <img
+      src={btvLogoPng}
+      alt={alt}
+      className={`inline-block select-none object-contain brightness-100 ${className}`}
       style={height ? { height } : undefined}
-      aria-label="BTVIZION Logo"
-    >
-      <text
-        x="0"
-        y="72"
-        fill="currentColor"
-        style={{
-          fontFamily: "'Plus Jakarta Sans', 'Nunito', sans-serif",
-          fontWeight: 900,
-          fontSize: '82px',
-          letterSpacing: '-0.045em',
-          textTransform: 'uppercase',
-        }}
-      >
-        BTVIZION
-      </text>
-    </svg>
+      loading="eager"
+      decoding="async"
+    />
   );
 }
+

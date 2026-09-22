@@ -5,7 +5,6 @@ import {
   ScrollReveal,
   ScrollWordColorReveal,
   SpotlightCard,
-  ScrollParallaxWatermark,
   ScrollHeaderGradientFill,
 } from './ScrollReveal';
 import WorkflowGrowthChart from './WorkflowGrowthChart';
@@ -34,9 +33,6 @@ export default function RoiCalculator({ onPlanSelected }: RoiCalculatorProps) {
 
   return (
     <section id="calculator" className="py-24 md:py-32 bg-transparent border-t border-white/10 relative overflow-hidden">
-      {/* Background Watermark */}
-      <ScrollParallaxWatermark text={language === 'en' ? 'METRICS & ROI' : 'MÉTRICAS Y ROI'} />
-
       <div className="max-w-7xl mx-auto px-6 md:px-8 relative z-10">
         {/* Header */}
         <ScrollReveal variant="fade-up" className="flex flex-col md:flex-row md:items-end justify-between gap-6 pb-14 border-b border-white/10">

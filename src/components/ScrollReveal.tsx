@@ -510,31 +510,13 @@ export function SpotlightCard({
 }
 
 /**
- * Large drifting background watermark text for added depth on scroll
+ * Background depth text watermark disabled for clean visuals and optimized performance
  */
-export function ScrollParallaxWatermark({
-  text,
-  className = '',
-}: {
-  text: string;
+export function ScrollParallaxWatermark(_props?: {
+  text?: string;
   className?: string;
 }) {
-  const ref = useRef<HTMLDivElement>(null);
-  const { scrollYProgress } = useScroll({
-    target: ref,
-    offset: ['start end', 'end start'],
-  });
-
-  const x = useTransform(scrollYProgress, [0, 1], ['-10%', '10%']);
-
-  return (
-    <div
-      ref={ref}
-      className={`pointer-events-none select-none overflow-hidden absolute inset-0 flex items-center justify-center opacity-[0.03] text-[16vw] font-black font-mono tracking-tighter leading-none whitespace-nowrap text-white ${className}`}
-    >
-      <motion.div style={{ x }}>{text}</motion.div>
-    </div>
-  );
+  return null;
 }
 
 

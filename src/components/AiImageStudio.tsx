@@ -14,6 +14,7 @@ import {
   Maximize2,
   Trash2,
 } from 'lucide-react';
+import { safeFetchJson } from '../utils/apiClient';
 
 const ASPECT_RATIOS = [
   { label: '1:1 Square', value: '1:1', desc: 'Social & Avatars' },
@@ -73,7 +74,13 @@ export default function AiImageStudio() {
     setErrorMessage(null);
 
     try {
-      const response = await fetch('/api/generate-image', {
+      const result = await safeFetchJson<{
+        success?: boolean;
+        imageUrl?: string;
+        description?: string;
+        message?: string;
+        error?: string;
+      }>('/api/generate-image', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -84,21 +91,19 @@ export default function AiImageStudio() {
         }),
       });
 
-      const data = await response.json();
-
-      if (!response.ok || data.error) {
-        throw new Error(data.error || 'Failed to generate image.');
+      if (!result.ok || result.error || !result.data?.imageUrl) {
+        if (result.isQuota) {
+          throw new Error(
+            'Gemini Image API Quota Exceeded (429): Request limit reached. Gemini image generation requires an active paid quota project key. You can select your project key from Settings > Secrets.'
+          );
+        }
+        throw new Error(result.error || result.data?.message || 'Failed to generate image.');
       }
 
-      if (data.imageUrl) {
-        setGeneratedImage(data.imageUrl);
-        setDescription(data.description || 'Generated with gemini-3.1-flash-image');
-      } else {
-        throw new Error(data.message || 'Model did not return image data.');
-      }
+      setGeneratedImage(result.data.imageUrl);
+      setDescription(result.data.description || 'Generated with gemini-3.1-flash-lite-image');
     } catch (err: any) {
       console.error('Image Studio Error:', err);
-      // If error indicates billing/quota limitation, provide informative resolution
       const isQuotaOrPaid =
         err.message?.includes('quota') ||
         err.message?.includes('paid') ||
@@ -107,7 +112,7 @@ export default function AiImageStudio() {
 
       setErrorMessage(
         isQuotaOrPaid
-          ? 'Image generation with gemini-3.1-flash-image requires active API quota. You can select your project API key from the top AI Studio settings to enable unlimited generations.'
+          ? 'Image generation with gemini-3.1-flash-lite-image requires active API quota (429). Please wait a moment or configure your own billing API key in Settings > Secrets.'
           : err.message || 'Failed to generate image. Please try again.'
       );
     } finally {

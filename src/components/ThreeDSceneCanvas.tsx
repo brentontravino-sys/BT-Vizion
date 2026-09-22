@@ -66,7 +66,7 @@ export default function ThreeDSceneCanvas({
     const isMobile = width < 768;
     const SPHERE_RADIUS = isMobile ? Math.min(width, height) * 0.28 : Math.min(width, height) * 0.29;
     const points: Point3D[] = [];
-    const numPoints = isMobile ? 80 : 120;
+    const numPoints = isMobile ? 50 : 75;
 
     // Fibonacci sphere distribution for uniform points
     const phi = Math.PI * (3 - Math.sqrt(5)); // Golden angle
@@ -85,7 +85,7 @@ export default function ThreeDSceneCanvas({
         vx: 0,
         vy: 0,
         vz: 0,
-        baseRadius: 2.2 + Math.random() * 2.2,
+        baseRadius: 1.1 + Math.random() * 0.8, // refined smaller nodes
       });
     }
 
@@ -93,7 +93,7 @@ export default function ThreeDSceneCanvas({
     const ring1: { x: number; y: number; z: number }[] = [];
     const ring2: { x: number; y: number; z: number }[] = [];
     const ring3: { x: number; y: number; z: number }[] = [];
-    const ringCount = 64;
+    const ringCount = 48;
 
     const R1 = SPHERE_RADIUS * 1.28;
     const R2 = SPHERE_RADIUS * 1.48;
@@ -121,18 +121,18 @@ export default function ThreeDSceneCanvas({
       });
     }
 
-    // 3. Floating 3D Starfield & Data Streams (multi-depth ambient particles)
+    // 3. Floating 3D Starfield & Data Streams (multi-depth ambient particles kept small & performant)
     const starfield: Point3D[] = [];
-    const starCount = isMobile ? 60 : 110;
+    const starCount = isMobile ? 24 : 45;
     for (let i = 0; i < starCount; i++) {
       starfield.push({
         x: (Math.random() - 0.5) * width * 2,
         y: (Math.random() - 0.5) * height * 2,
         z: (Math.random() - 0.5) * 1100,
-        vx: (Math.random() - 0.5) * 0.35,
-        vy: (Math.random() - 0.5) * 0.35,
-        vz: (Math.random() - 0.5) * 0.4,
-        baseRadius: 0.9 + Math.random() * 2.0,
+        vx: (Math.random() - 0.5) * 0.25,
+        vy: (Math.random() - 0.5) * 0.25,
+        vz: (Math.random() - 0.5) * 0.3,
+        baseRadius: 0.35 + Math.random() * 0.45, // kept small, no large particle blobs
       });
     }
 
@@ -327,11 +327,11 @@ export default function ThreeDSceneCanvas({
         const alpha = Math.max(0.12, Math.min(0.98, normalizedZ));
         const radius = pt.baseRadius * pt.scale;
 
-        // Front glowing vertices receive outer atmospheric halo
-        if (normalizedZ > 0.55) {
+        // Front glowing vertices receive subtle atmospheric halo (optimized)
+        if (normalizedZ > 0.65) {
           ctx.beginPath();
-          ctx.arc(pt.px, pt.py, radius * 3.8, 0, Math.PI * 2);
-          ctx.fillStyle = `rgba(96, 165, 250, ${alpha * 0.18})`;
+          ctx.arc(pt.px, pt.py, radius * 1.6, 0, Math.PI * 2);
+          ctx.fillStyle = `rgba(96, 165, 250, ${alpha * 0.12})`;
           ctx.fill();
         }
 
