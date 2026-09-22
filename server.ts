@@ -16,6 +16,17 @@ const PORT = 3000;
 app.use(express.json({ limit: '30mb' }));
 app.use(express.urlencoded({ extended: true, limit: '30mb' }));
 
+// Global CORS & preflight middleware to prevent CORS / 405 Method Not Allowed issues
+app.use((req, res, next) => {
+  res.header('Access-Control-Allow-Origin', '*');
+  res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+  res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization');
+  if (req.method === 'OPTIONS') {
+    return res.sendStatus(204);
+  }
+  next();
+});
+
 // Lazy GoogleGenAI client helper
 function getGeminiClient(): GoogleGenAI {
   const apiKey = process.env.GEMINI_API_KEY;
@@ -112,7 +123,7 @@ app.get('/api/health', (_req, res) => {
 // ----------------------------------------------------
 // 2. Multi-turn Chat & Search Grounding API
 // ----------------------------------------------------
-app.post('/api/chat', async (req, res) => {
+const handleChatRequest = async (req: express.Request, res: express.Response) => {
   res.setHeader('Content-Type', 'application/json');
   try {
     const {
@@ -120,12 +131,12 @@ app.post('/api/chat', async (req, res) => {
       systemInstruction = 'You are an elite digital strategist and technical lead at BT Vizion.',
       model = 'gemini-3.5-flash',
       useSearch = false,
-    } = req.body;
+    } = req.body || {};
 
     const ai = getGeminiClient();
 
     // Map conversation history into contents format
-    const contents = messages.map((m: { role: string; content: string }) => ({
+    const contents = (Array.isArray(messages) ? messages : []).map((m: { role: string; content: string }) => ({
       role: m.role === 'user' ? 'user' : 'model',
       parts: [{ text: m.content || '' }],
     }));
@@ -167,7 +178,7 @@ app.post('/api/chat', async (req, res) => {
           });
         } catch (fallbackErr: any) {
           console.warn('Fallback model also hit limit/spike. Serving strategic offline advisor.');
-          const lastUserMsg = messages.filter((m: any) => m.role === 'user').slice(-1)[0]?.content || '';
+          const lastUserMsg = (Array.isArray(messages) ? messages : []).filter((m: any) => m.role === 'user').slice(-1)[0]?.content || '';
           return res.json({
             reply: getStrategicFallbackReply(lastUserMsg),
             groundingChunks: [],
@@ -178,7 +189,7 @@ app.post('/api/chat', async (req, res) => {
           });
         }
       } else if (shouldFallback) {
-        const lastUserMsg = messages.filter((m: any) => m.role === 'user').slice(-1)[0]?.content || '';
+        const lastUserMsg = (Array.isArray(messages) ? messages : []).filter((m: any) => m.role === 'user').slice(-1)[0]?.content || '';
         return res.json({
           reply: getStrategicFallbackReply(lastUserMsg),
           groundingChunks: [],
@@ -212,6 +223,24 @@ app.post('/api/chat', async (req, res) => {
       isQuota: formatted.isQuota,
     });
   }
+};
+
+app.post(['/api/chat', '/api/chat/'], handleChatRequest);
+app.get(['/api/chat', '/api/chat/'], (_req, res) => {
+  res.setHeader('Content-Type', 'application/json');
+  res.json({
+    status: 'ok',
+    endpoint: '/api/chat',
+    methods: ['POST'],
+    supportedModels: ['gemini-3.5-flash', 'gemini-3.1-flash-lite', 'gemini-3.1-pro-preview'],
+  });
+});
+app.all(['/api/chat', '/api/chat/'], (req, res) => {
+  res.setHeader('Allow', 'POST, GET, OPTIONS');
+  res.setHeader('Content-Type', 'application/json');
+  res.status(405).json({
+    error: `Method ${req.method} not allowed on /api/chat. Please submit requests using POST with JSON body.`,
+  });
 });
 
 // ----------------------------------------------------
@@ -736,6 +765,16 @@ server.on('upgrade', (request, socket, head) => {
   } else {
     socket.destroy();
   }
+});
+
+// ----------------------------------------------------
+// 5b. Catch-all for unhandled /api/* routes (returns JSON, never falls through to Vite static 405)
+// ----------------------------------------------------
+app.all('/api/*', (req, res) => {
+  res.setHeader('Content-Type', 'application/json');
+  res.status(404).json({
+    error: `API endpoint not found: ${req.method} ${req.originalUrl}`,
+  });
 });
 
 // ----------------------------------------------------

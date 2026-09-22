@@ -17,7 +17,26 @@ export async function safeFetchJson<T = any>(
   options?: RequestInit
 ): Promise<SafeApiResponse<T>> {
   try {
-    const res = await fetch(url, options);
+    // Ensure relative API URLs have a leading slash
+    const normalizedUrl = url.startsWith('http') || url.startsWith('/') ? url : `/${url}`;
+
+    const headers: Record<string, string> = {
+      'Accept': 'application/json',
+      ...((options?.headers as Record<string, string>) || {}),
+    };
+
+    // Only set Content-Type if there's a body or it's a POST/PUT request
+    if (options?.body && !headers['Content-Type']) {
+      headers['Content-Type'] = 'application/json';
+    }
+
+    const mergedOptions: RequestInit = {
+      credentials: 'same-origin',
+      ...options,
+      headers,
+    };
+
+    const res = await fetch(normalizedUrl, mergedOptions);
     const text = await res.text();
     let data: any = {};
 
@@ -29,11 +48,19 @@ export async function safeFetchJson<T = any>(
         data = { error: text.slice(0, 300) };
       }
     } else {
-      data = {
-        error: res.ok
+      let friendlyError = '';
+      if (res.status === 405) {
+        friendlyError = 'API method was temporarily rejected. Please try sending your query again.';
+      } else if (res.status === 502 || res.status === 503 || res.status === 504) {
+        friendlyError = 'The AI advisory service is warming up. Please try again in a few seconds.';
+      } else if (res.status === 404) {
+        friendlyError = 'The requested endpoint was not found.';
+      } else {
+        friendlyError = res.ok
           ? 'Empty response received from server.'
-          : `Server returned HTTP ${res.status} (${res.statusText || 'Error'}) with no body.`,
-      };
+          : `Server returned HTTP ${res.status} (${res.statusText || 'Error'}).`;
+      }
+      data = { error: friendlyError };
     }
 
     // Clean up nested error structures
